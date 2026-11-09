@@ -2,7 +2,6 @@ name: Build BedrockSync
 
 on:
   push:
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -21,13 +20,31 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - name: Set up Gradle 9.3.1
+      - name: Check for Gradle wrapper JAR
+        id: wrapper
+        run: |
+          if [ -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Only used to create the wrapper when the JAR is missing from the repo.
+      - name: Set up Gradle 9.3.1 (bootstrap only)
+        if: steps.wrapper.outputs.present == 'false'
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      - name: Build mod
-        run: gradle build --no-daemon --stacktrace
+      - name: Generate Gradle wrapper
+        if: steps.wrapper.outputs.present == 'false'
+        run: gradle wrapper --gradle-version 9.3.1 --no-daemon
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build with ./gradlew build
+        run: ./gradlew build --no-daemon --stacktrace
 
       - name: Upload jar
         uses: actions/upload-artifact@v4
@@ -37,3 +54,4 @@ jobs:
             build/libs/*.jar
             !build/libs/*-sources.jar
           if-no-files-found: error
+          
