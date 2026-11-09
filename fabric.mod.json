@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "bedrocksync",
+  "version": "${version}",
+  "name": "BedrockSync",
+  "description": "Client-side Microsoft/Xbox account viewer and local skin preview for Minecraft Java Edition.",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.bedrocksync.BedrockSyncClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.1",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
